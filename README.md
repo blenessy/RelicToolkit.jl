@@ -8,7 +8,7 @@ You can test this with on x86/amd64 Windows, Mac, and Linux:
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/blenessy/RelicToolkit.jl")
+Pkg.add(PackageSpec(url="https://github.com/blenessy/RelicToolkit.jl"))
 ```
 
 Not much wrapped yet, but this should work:
