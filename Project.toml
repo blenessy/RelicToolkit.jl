@@ -1,0 +1,15 @@
+name = "RelicToolkit"
+uuid = "976a8074-9f4c-11e9-1019-17da4c65f546"
+authors = ["Zalan Blenessy <zalan@radixdlt.com>"]
+version = "0.4.0-613-g613795f7-1"
+
+[deps]
+BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+
+[extras]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "BenchmarkTools"]
