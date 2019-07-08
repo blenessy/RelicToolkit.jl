@@ -23,6 +23,9 @@ md_hmac(zeros(UInt8, 32), UInt8[1, 2, 3], UInt8[1, 2, 3])
 - [ ] Implement the necessary wrappers for the BLS12 381 signature scheme.
 - [ ] Fix `TODO`s in code
 - [ ] Add `.travis.yml` and improve `README.md` so that the community can help
+- [ ] Add conversion to/from BitInt
+- [ ] Add promotion with Integer
+- [ ] Add syntactic sugar by overloading applicable operators (e.g. +, -, *, //, ^)
 
 # Long Term Goal
 
