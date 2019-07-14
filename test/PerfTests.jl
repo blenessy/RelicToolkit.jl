@@ -5,7 +5,8 @@ using RelicToolkit
 using RelicToolkit:
     ep_norm, ep_rand, ep_add_basic!, ep_add_projc!, ep_add_projc,
     ep2_rand,
-    fp_add_basic!, fp_add_integ!, fp_rand,
+    fp_add_basic!, fp_rand, fp_sub_basic!, fp_neg_basic!, fp_mul_comba!, fp_inv_lower!, fp_sqr_comba!,
+    fp_exp_slide!, fp_srt!, fp_hlv_basic!,
     fp12_rand,
     md_hmac, pp_exp_k12!, pp_map_oatep_k12!, pp_map_tatep_k12!, pp_map_weilp_k12!
 
@@ -18,14 +19,24 @@ BenchmarkTools.DEFAULT_PARAMETERS.gcsample = false
 
 eprandp() = ep_add_projc(ep_rand(), EP())
 rand256() = zeros(UInt8, 32)
+fpsqrrand() = fp_sqr_comba!(FP(), fp_rand())
+bnrand() = BN(fp_rand())
 
 suite = BenchmarkGroup()
 suite["RelicToolkit"] = BenchmarkGroup()
+suite["RelicToolkit"]["BigInt(::FP)"] = @benchmarkable BigInt($(fp_rand()))
+suite["RelicToolkit"]["BigInt(::BN)"] = @benchmarkable BigInt($(bnrand()))
 suite["RelicToolkit"]["::EP2 == ::EP2"] = @benchmarkable EP2() == EP2()
-suite["RelicToolkit"]["ep_add_basic"] = @benchmarkable ep_add_basic!($(EP()), $(ep_rand()), $(ep_rand()))
-suite["RelicToolkit"]["ep_add_projc"] = @benchmarkable ep_add_projc!($(EP()), $(eprandp()), $(eprandp()))
-suite["RelicToolkit"]["fp_add_basic"] = @benchmarkable fp_add_basic!($(FP()), $(fp_rand()), $(fp_rand()))
-suite["RelicToolkit"]["fp_add_integ"] = @benchmarkable fp_add_integ!($(FP()), $(fp_rand()), $(fp_rand()))
+suite["RelicToolkit"]["ep_add_basic!"] = @benchmarkable ep_add_basic!($(EP()), $(ep_rand()), $(ep_rand()))
+suite["RelicToolkit"]["ep_add_projc!"] = @benchmarkable ep_add_projc!($(EP()), $(eprandp()), $(eprandp()))
+suite["RelicToolkit"]["fp_hlv_basic!"] = @benchmarkable fp_hlv_basic!($(FP()), $(fp_rand()))
+suite["RelicToolkit"]["FP + FP"] = @benchmarkable $(fp_rand()) + $(fp_rand())
+suite["RelicToolkit"]["FP - FP"] = @benchmarkable $(fp_rand()) - $(fp_rand())
+suite["RelicToolkit"]["FP * FP"] = @benchmarkable $(fp_rand()) * $(fp_rand())
+suite["RelicToolkit"]["FP ^ FP"] = @benchmarkable $(fp_rand()) ^ $(bnrand())
+suite["RelicToolkit"]["sqrt(FP)"] = @benchmarkable sqrt($(fpsqrrand()))
+suite["RelicToolkit"]["inv(FP)"] = @benchmarkable inv($(fp_rand()))
+
 suite["RelicToolkit"]["FP12"] = @benchmarkable FP12()
 suite["RelicToolkit"]["::FP12 == ::FP12"] = @benchmarkable FP12() == FP12()
 suite["RelicToolkit"]["md_hmac"] = @benchmarkable md_hmac($(rand256()), $(rand256()))

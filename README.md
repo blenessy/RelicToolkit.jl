@@ -13,7 +13,7 @@ Pkg.add(PackageSpec(url="https://github.com/blenessy/RelicToolkit.jl"))
 
 Not much wrapped yet, but this should work:
 ```julia
-using RelicToolkit: md_hmac
+using RelicToolkit
 md_hmac(zeros(UInt8, 32), UInt8[1, 2, 3], UInt8[1, 2, 3])
 ```
 
@@ -23,9 +23,11 @@ md_hmac(zeros(UInt8, 32), UInt8[1, 2, 3], UInt8[1, 2, 3])
 - [ ] Implement the necessary wrappers for the BLS12 381 signature scheme.
 - [ ] Fix `TODO`s in code
 - [ ] Add `.travis.yml` and improve `README.md` so that the community can help
-- [ ] Add conversion to/from BitInt
 - [ ] Add promotion with Integer
 - [ ] Add syntactic sugar by overloading applicable operators (e.g. +, -, *, //, ^)
+- [ ] Use BN(undef) and FP(undef) where safe to save some clock cycles
+- [ ] remove function name prefix from lib - it just make it harder to switch
+
 
 # Long Term Goal
 
