@@ -16,41 +16,33 @@ end
     end
 end
 
-@testset "FP: add and sub" begin
-    # TODO: add more 
-    fp = RelicToolkit.fp_rand()
-    @test (fp + fp) - fp == fp
-    @test (fp + fp + fp) - fp - fp == fp
-    @test fp + (-fp) == FP()
+@testset "Basic FP and FPX arithmetic" begin
+    for T in (FP, FP2, FP6, FP12)
+        a = rand(T)
+        @test !iszero(a)
+    
+        # add, sub, neg
+        @test (a + a) - a == a
+        @test (a + a + a) - a - a == a
+        @test -a == a - a - a
+    
+        # mul, inv, exp
+        b = a * a
+        c = b * a
+        @test b // a == a
+        @test b ÷ a == a
+        @test c // b == a
+        @test c ÷ b == a
+        @test 3a == a + a + a
+        @test a^3 == c
+    end
 end
 
 @testset "FP: square root" begin
-    # TODO: add more 
-    fp = RelicToolkit.fp_rand()
-    @test √(fp * fp) in (fp, -fp)
-end
-
-@testset "FP: exp" begin
-    # TODO: add more 
-    fp = RelicToolkit.fp_rand()
-    @test fp^3 == fp * fp * fp 
-end
-
-@testset "FP: mul and inv" begin
-    fp = RelicToolkit.fp_rand()
-    fp2 = fp * fp
-    fp3 = fp2 * fp
-    @test fp2 // fp == fp
-    @test fp2 ÷ fp == fp
-    @test fp3 // fp2 == fp
-    @test fp3 ÷ fp2 == fp
-    @test 3fp == fp + fp + fp
-end
-
-@testset "rand method exists for all structs" begin
-    for T in (FP, )
-        @test isa(rand(T), T)
-    end
+    a = rand(FP)
+    b = a * a
+    @test √b in (a, -a)
+    @test sqrt(b) in (a, -a)
 end
 
 end

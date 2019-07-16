@@ -14,7 +14,7 @@ Pkg.add(PackageSpec(url="https://github.com/blenessy/RelicToolkit.jl"))
 Not much wrapped yet, but this should work:
 ```julia
 using RelicToolkit
-md_hmac(zeros(UInt8, 32), UInt8[1, 2, 3], UInt8[1, 2, 3])
+RelicToolkit.md_hmac(UInt8[1, 2, 3], UInt8[1, 2, 3])
 ```
 
 # Short Term Goal
