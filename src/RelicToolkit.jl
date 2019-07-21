@@ -203,19 +203,42 @@ Base.:(^)(a::FP12, b::BN) = fp12_exp(a, b)
 Base.:(^)(a::FP12, b::Integer) = fp12_exp(a, BN(b))
 Base.inv(a::FP12) = fp12_inv(a)
 
-Base.:(+)(a::EP, b::EP) = ep_add_basic(a, b)
+Base.:(+)(a::EP, b::EP) = ep_add_projc(a, b)
+Base.:(-)(a::EP, b::EP) = ep_sub_projc(a, b)
+Base.:(-)(a::EP) = ep_neg_basic(a)
+Base.:(*)(a::EP, b::BN) = ep_mul_lwnaf(a, b)
+Base.:(*)(a::BN, b::EP) = ep_mul_lwnaf(b, a)
+Base.:(*)(a::EP, b::Integer) = a * BN(b)
+Base.:(*)(a::Integer, b::EP) = b * BN(a)
+
+Base.:(+)(a::EP2, b::EP2) = ep2_add_projc(a, b)
+Base.:(-)(a::EP2, b::EP2) = ep2_sub_projc(a, b)
+Base.:(-)(a::EP2) = ep2_neg_basic(a)
+Base.:(*)(a::EP2, b::BN) = ep2_mul_lwnaf(a, b)
+Base.:(*)(a::BN, b::EP2) = ep2_mul_lwnaf(b, a)
+Base.:(*)(a::EP2, b::Integer) = a * BN(b)
+Base.:(*)(a::Integer, b::EP2) = b * BN(a)
+
 Base.rand(::Type{BN}) = BN(fp_rand())
 Base.rand(::Type{FP}) = fp_rand()
 Base.rand(::Type{FP2}) = fp2_rand()
 Base.rand(::Type{FP6}) = fp6_rand()
 Base.rand(::Type{FP12}) = fp12_rand()
 Base.rand(::Type{EP}) = ep_rand()
+Base.rand(::Type{EP2}) = ep2_rand()
 
 Base.iszero(a::BN) = isone(ccall((:bn_is_zero, LIB), Cint, (Ref{BN},), a))
 Base.iszero(a::FP) = isone(ccall((:fp_is_zero, LIB), Cint, (Ref{FP},), a))
 Base.iszero(a::FP2) = isone(ccall((:fp2_is_zero, LIB), Cint, (Ref{FP2},), a))
 Base.iszero(a::FP6) = isone(ccall((:fp6_is_zero, LIB), Cint, (Ref{FP6},), a))
 Base.iszero(a::FP12) = isone(ccall((:fp12_is_zero, LIB), Cint, (Ref{FP12},), a))
+
+Base.isvalid(a::EP) = isone(ccall((:ep_is_valid, LIB), Cint, (Ref{EP},), a))
+Base.isvalid(a::EP2) = isone(ccall((:ep2_is_valid, LIB), Cint, (Ref{EP2},), a))
+
+Base.isinf(a::EP) = isone(ccall((:ep_is_infty, LIB), Cint, (Ref{EP},), a))
+Base.isinf(a::EP2) = isone(ccall((:ep_is_infty, LIB), Cint, (Ref{EP2},), a))
+
 
 function Base.BigInt(bn::BN)
     bigint = Base.GMP.MPZ.realloc2((bn.used * sizeof(Limb)) << 3)
@@ -269,18 +292,149 @@ function ep_curve_get_gen!(g::EP)
 end
 ep_curve_get_gen() = ep_curve_get_gen!(EP())
 
+function ep_dbl_basic!(c::EP, a::EP)
+    ccall((:ep_dbl_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
+    return c
+end
+ep_dbl_basic(a::EP, b::EP) = ep_dbl_basic!(EP(), a, b)
+
+function ep_dbl_projc!(c::EP, a::EP)
+    ccall((:ep_dbl_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
+    return c
+end
+ep_dbl_projc(a::EP) = ep_dbl_projc!(EP(), a)
+
+function ep_mul_basic!(c::EP, a::EP, b::BN)
+    ccall((:ep_mul_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{BN}), c, a, b)
+    return c
+end
+ep_mul_basic(a::EP, b::BN) = ep_mul_basic!(EP(), a, b)
+
+function ep_mul_lwnaf!(c::EP, a::EP, b::BN)
+    ccall((:ep_mul_lwnaf, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{BN}), c, a, b)
+    return c
+end
+ep_mul_lwnaf(a::EP, b::BN) = ep_mul_lwnaf!(EP(), a, b)
+
+function ep_mul_gen!(c::EP, b::BN)
+    ccall((:ep_mul_gen, LIB), Cvoid, (Ref{EP}, Ref{BN}), c, b)
+    return c
+end
+ep_mul_gen(b::BN) = ep_mul_gen!(EP(), b)
+
+function ep_neg_basic!(c::EP, a::EP)
+    ccall((:ep_neg_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
+    return c
+end
+ep_neg_basic(a::EP) = ep_neg_basic!(EP(), a)
+
+function ep_neg_projc!(c::EP, a::EP)
+    ccall((:ep_neg_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
+    return c
+end
+ep_neg_projc(a::EP) = ep_neg_projc!(EP(), a)
+
 function ep_norm!(r::EP, p::EP)
     ccall((:ep_norm, LIB), Cvoid, (Ref{EP}, Ref{EP}), r, p)
     return r
 end
 ep_norm(p::EP) = ep_norm!(EP(), p)
-ep_param_embed() = ccall((:ep_param_embed, LIB), Cint, ())
+
+function ep_sub_basic!(c::EP, a::EP, b::EP)
+    ccall((:ep_sub_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{EP}), c, a, b)
+    return c
+end
+ep_sub_basic(a::EP, b::EP) = ep_sub_basic!(EP(), a, b)
+
+function ep_sub_projc!(c::EP, a::EP, b::EP)
+    ccall((:ep_sub_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{EP}), c, a, b)
+    return c
+end
+ep_sub_projc(a::EP, b::EP) = ep_sub_projc!(EP(), a, b)
 
 function ep_rand!(ep::EP)
     ccall((:ep_rand, LIB), Cvoid, (Ref{EP},), ep)
     return ep
 end
 ep_rand() = ep_rand!(EP())
+
+function ep2_add_basic!(c::EP2, a::EP2, b::EP2)
+    ccall((:ep2_add_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
+    return c
+end
+ep2_add_basic(a::EP2, b::EP2) = ep2_add_basic!(EP2(), a, b)
+
+function ep2_add_projc!(c::EP2, a::EP2, b::EP2)
+    ccall((:ep2_add_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
+    return c
+end
+ep2_add_projc(a::EP2, b::EP2) = ep2_add_projc!(EP2(), a, b)
+
+function ep2_curve_get_gen!(g::EP)
+    ccall((:ep2_curve_get_gen, LIB), Cvoid, (Ref{EP2},), g)
+    return g
+end
+ep2_curve_get_gen() = ep2_curve_get_gen!(EP2())
+
+function ep2_dbl_basic!(c::EP2, a::EP2)
+    ccall((:ep2_dbl_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
+    return c
+end
+ep2_dbl_basic(a::EP2, b::EP2) = ep2_dbl_basic!(EP2(), a, b)
+
+function ep2_dbl_projc!(c::EP2, a::EP2)
+    ccall((:ep2_dbl_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
+    return c
+end
+ep2_dbl_projc(a::EP2) = ep2_dbl_projc!(EP2(), a)
+
+function ep2_mul_basic!(c::EP2, a::EP2, b::BN)
+    ccall((:ep2_mul_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{BN}), c, a, b)
+    return c
+end
+ep2_mul_basic(a::EP2, b::BN) = ep2_mul_basic!(EP2(), a, b)
+
+function ep2_mul_lwnaf!(c::EP2, a::EP2, b::BN)
+    ccall((:ep2_mul_lwnaf, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{BN}), c, a, b)
+    return c
+end
+ep2_mul_lwnaf(a::EP2, b::BN) = ep2_mul_lwnaf!(EP2(), a, b)
+
+function ep2_mul_gen!(c::EP2, b::BN)
+    ccall((:ep2_mul_gen, LIB), Cvoid, (Ref{EP2}, Ref{BN}), c, b)
+    return c
+end
+ep2_mul_gen(b::BN) = ep2_mul_gen!(EP2(), b)
+
+function ep2_neg_basic!(c::EP2, a::EP2)
+    ccall((:ep2_neg_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
+    return c
+end
+ep2_neg_basic(a::EP2) = ep2_neg_basic!(EP2(), a)
+
+function ep2_neg_projc!(c::EP2, a::EP2)
+    ccall((:ep2_neg_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
+    return c
+end
+ep2_neg_projc(a::EP2) = ep2_neg_projc!(EP2(), a)
+
+function ep2_norm!(r::EP2, p::EP2)
+    ccall((:ep2_norm, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), r, p)
+    return r
+end
+ep2_norm(p::EP2) = ep_norm!(EP2(), p)
+
+function ep2_sub_basic!(c::EP2, a::EP2, b::EP2)
+    ccall((:ep2_sub_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
+    return c
+end
+ep2_sub_basic(a::EP2, b::EP2) = ep2_sub_basic!(EP2(), a, b)
+
+function ep2_sub_projc!(c::EP2, a::EP2, b::EP2)
+    ccall((:ep2_sub_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
+    return c
+end
+ep2_sub_projc(a::EP2, b::EP2) = ep2_sub_projc!(EP2(), a, b)
 
 function ep2_rand!(ep::EP2)
     ccall((:ep2_rand, LIB), Cvoid, (Ref{EP2},), ep)

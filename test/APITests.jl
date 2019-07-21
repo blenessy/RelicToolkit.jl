@@ -2,6 +2,8 @@ module APITests
 
 using Test
 using RelicToolkit
+#using RelicToolkit: ep_dbl_basic, ep2_dbl_basic
+
 
 @testset "all structs have default constructors" begin
     for T in (BN, FP, FP2, FP6, FP12, EP, EP2)
@@ -43,6 +45,24 @@ end
     b = a * a
     @test √b in (a, -a)
     @test sqrt(b) in (a, -a)
+end
+
+
+@testset "Basic EP and EP2 arithmetic" begin
+    for T in (EP, EP2)
+        a = rand(T)
+        @test !isinf(a)
+        @test isvalid(a)
+
+        # add, sub, neg
+        @test (a + a) - a == a
+        @test (a + a + a) - a - a == a
+        @test -a == a - a - a
+
+        # mul, inv, exp
+        @test a + a == 2 * a
+        @test a + a + a == a * 3
+    end
 end
 
 end

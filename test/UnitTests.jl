@@ -7,7 +7,7 @@ using RelicToolkit:
     fp_prime_get, fp_rand, fp_add_basic, fp_sub_basic, fp_neg_basic, fp_prime_get,
     fp_mul_comba, fp_inv_lower, fp_hlv_basic, fp_sqr_comba, fp_exp_slide, fp_srt,
     fp12_rand,
-    ep_rand, ep_add_basic, ep_add_projc, ep_norm, ep_curve_get_gen, ep_param_embed,
+    ep_rand, ep_add_basic, ep_add_projc, ep_norm, ep_curve_get_gen,
     ep2_rand,
     md_hmac, pp_exp_k12, pp_map_oatep_k12, pp_map_tatep_k12, pp_map_weilp_k12
 
@@ -93,10 +93,6 @@ end
     ep = ep_curve_get_gen()
     @test !isempty(x for x in ep.x if !iszero(x))
     @test ep.norm == 1
-end
-
-@testset "ep_param_embed" begin
-    @test !iszero(ep_param_embed())
 end
 
 @testset "ep_rand" begin
