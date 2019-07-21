@@ -1,9 +1,7 @@
-module BLSSignaturesPerf
+module PerfTests
 
 using BenchmarkTools
-using RelicToolkit
-using RelicToolkit: fp_sqr_comba!, md_hmac, pp_exp_k12!, pp_map_oatep_k12!, pp_map_tatep_k12!, pp_map_weilp_k12!,
-    ep_mul_gen!, ep2_mul_gen!
+using RelicToolkit: BN254, BLS381
 
 BenchmarkTools.DEFAULT_PARAMETERS.samples = 1000
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 10
@@ -12,82 +10,67 @@ BenchmarkTools.DEFAULT_PARAMETERS.gctrial = true
 BenchmarkTools.DEFAULT_PARAMETERS.gcsample = false
 @show BenchmarkTools.DEFAULT_PARAMETERS
 
-rand256() = zeros(UInt8, 32)
-fpsqrrand() = fp_sqr_comba!(FP(), rand(FP))
-
 suite = BenchmarkGroup()
-suite["RelicToolkit"] = BenchmarkGroup()
 
-suite["RelicToolkit"]["BN"] = BenchmarkGroup()
-suite["RelicToolkit"]["BN"]["BigInt(::BN)"] = @benchmarkable BigInt($(rand(BN)))
-
-suite["RelicToolkit"]["FP"] = BenchmarkGroup()
-suite["RelicToolkit"]["FP"]["BigInt(::FP)"] = @benchmarkable BigInt($(rand(FP)))
-suite["RelicToolkit"]["FP"]["FP(::UInt)"] = @benchmarkable FP($(rand(UInt)))
-suite["RelicToolkit"]["FP"]["+"] = @benchmarkable $(rand(FP)) + $(rand(FP))
-suite["RelicToolkit"]["FP"]["-"] = @benchmarkable $(rand(FP)) - $(rand(FP))
-suite["RelicToolkit"]["FP"]["*"] = @benchmarkable $(rand(FP)) * $(rand(FP))
-suite["RelicToolkit"]["FP"]["^"] = @benchmarkable $(rand(FP)) ^ $(rand(BN))
-suite["RelicToolkit"]["FP"]["inv"] = @benchmarkable inv($(rand(FP)))
-suite["RelicToolkit"]["FP"]["sqrt"] = @benchmarkable sqrt($(fpsqrrand()))
-
-suite["RelicToolkit"]["FP2"] = BenchmarkGroup()
-suite["RelicToolkit"]["FP2"]["+"] = @benchmarkable $(rand(FP2)) + $(rand(FP2))
-suite["RelicToolkit"]["FP2"]["-"] = @benchmarkable $(rand(FP2)) - $(rand(FP2))
-suite["RelicToolkit"]["FP2"]["*"] = @benchmarkable $(rand(FP2)) * $(rand(FP2))
-suite["RelicToolkit"]["FP2"]["^"] = @benchmarkable $(rand(FP2)) ^ $(rand(BN))
-suite["RelicToolkit"]["FP2"]["inv"] = @benchmarkable inv($(rand(FP2)))
-
-suite["RelicToolkit"]["FP6"] = BenchmarkGroup()
-suite["RelicToolkit"]["FP6"]["+"] = @benchmarkable $(rand(FP6)) + $(rand(FP6))
-suite["RelicToolkit"]["FP6"]["-"] = @benchmarkable $(rand(FP6)) - $(rand(FP6))
-suite["RelicToolkit"]["FP6"]["*"] = @benchmarkable $(rand(FP6)) * $(rand(FP6))
-suite["RelicToolkit"]["FP6"]["^"] = @benchmarkable $(rand(FP6)) ^ $(rand(BN))
-suite["RelicToolkit"]["FP6"]["inv"] = @benchmarkable inv($(rand(FP6)))
-
-suite["RelicToolkit"]["FP12"] = BenchmarkGroup()
-suite["RelicToolkit"]["FP12"]["FP12()"] = @benchmarkable FP12()
-suite["RelicToolkit"]["FP12"]["+"] = @benchmarkable $(rand(FP12)) + $(rand(FP12))
-suite["RelicToolkit"]["FP12"]["-"] = @benchmarkable $(rand(FP12)) - $(rand(FP12))
-suite["RelicToolkit"]["FP12"]["*"] = @benchmarkable $(rand(FP12)) * $(rand(FP12))
-suite["RelicToolkit"]["FP12"]["^"] = @benchmarkable $(rand(FP12)) ^ $(rand(BN))
-suite["RelicToolkit"]["FP12"]["inv"] = @benchmarkable inv($(rand(FP12)))
-suite["RelicToolkit"]["FP12"]["=="] = @benchmarkable $(FP12()) == $(FP12())
-
-suite["RelicToolkit"]["EP"] = BenchmarkGroup()
-suite["RelicToolkit"]["EP"]["=="] = @benchmarkable $(EP()) == $(EP())
-suite["RelicToolkit"]["EP"]["+"] = @benchmarkable $(rand(EP)) + $(rand(EP))
-suite["RelicToolkit"]["EP"]["*"] = @benchmarkable $(rand(EP)) * $(rand(BN))
-suite["RelicToolkit"]["EP"]["-"] = @benchmarkable $(rand(EP)) - $(rand(EP))
-suite["RelicToolkit"]["EP"]["isvalid"] = @benchmarkable isvalid($(rand(EP)))
-suite["RelicToolkit"]["EP"]["isinf"] = @benchmarkable isinf($(rand(EP)))
-suite["RelicToolkit"]["EP"]["ep_mul_gen"] = @benchmarkable ep_mul_gen!($(EP()), $(rand(BN)))
-
-suite["RelicToolkit"]["EP2"] = BenchmarkGroup()
-suite["RelicToolkit"]["EP2"]["=="] = @benchmarkable $(EP2()) == $(EP2())
-suite["RelicToolkit"]["EP2"]["+"] = @benchmarkable $(rand(EP2)) + $(rand(EP2))
-suite["RelicToolkit"]["EP2"]["*"] = @benchmarkable $(rand(EP2)) * $(rand(BN))
-suite["RelicToolkit"]["EP2"]["-"] = @benchmarkable $(rand(EP2)) - $(rand(EP2))
-suite["RelicToolkit"]["EP2"]["isvalid"] = @benchmarkable isvalid($(rand(EP2)))
-suite["RelicToolkit"]["EP2"]["isinf"] = @benchmarkable isinf($(rand(EP2)))
-suite["RelicToolkit"]["EP2"]["ep2_mul_gen"] = @benchmarkable ep2_mul_gen!($(EP2()), $(rand(BN)))
-
-suite["RelicToolkit"]["MD"] = BenchmarkGroup()
-suite["RelicToolkit"]["MD"]["md_hmac"] = @benchmarkable md_hmac($(rand256()), $(rand256()))
-
-suite["RelicToolkit"]["PP"] = BenchmarkGroup()
-suite["RelicToolkit"]["PP"]["pp_exp_k12"] = @benchmarkable pp_exp_k12!($(FP12()), $(rand(FP12)))
-suite["RelicToolkit"]["PP"]["pp_map_oatep_k12"] = @benchmarkable pp_map_oatep_k12!($(FP12()), $(rand(EP)), $(rand(EP2)))
-#suite["RelicToolkit"]["PP"]["pp_map_tatep_k12"] = @benchmarkable pp_map_tatep_k12($(FP12()), $(rand(EP)), $(rand(EP2)))
-#suite["RelicToolkit"]["PP"]["pp_map_weilp_k12"] = @benchmarkable pp_map_weilp_k12($(FP12()), $(rand(EP)), $(rand(EP2)))
+suite["RelicToolkit.BN254"] = BenchmarkGroup()
 
 
-function format_trial(suite, group, subgroup, res)
+suite["RelicToolkit.BN254.PP"] = BenchmarkGroup()
+suite["RelicToolkit.BN254.PP"]["field_final_exp"] = @benchmarkable BN254.field_final_exp($(rand(BN254.FP12)))
+suite["RelicToolkit.BN254.PP"]["curve_miller"] = @benchmarkable BN254.curve_miller!($(BN254.FP12()), $(rand(BN254.EP)), $(rand(BN254.EP2)))
+
+suite["RelicToolkit.BLS381"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.BN"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.BN"]["BigInt(::BN)"] = @benchmarkable BigInt($(rand(BLS381.BN)))
+suite["RelicToolkit.BLS381.FP"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.FP"]["BigInt(::FP)"] = @benchmarkable BigInt($(rand(BLS381.FP)))
+suite["RelicToolkit.BLS381.FP"]["rand(::Type{FP})"] = @benchmarkable rand(BLS381.FP)
+suite["RelicToolkit.BLS381.FP"]["FP(::Int)"] = @benchmarkable BLS381.FP(rand(Int))
+suite["RelicToolkit.BLS381.MD"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.MD"]["md_hmac"] = @benchmarkable BLS381.md_hmac($(rand(UInt8, BLS381.MD_LEN)), $(rand(UInt8, BLS381.MD_LEN)))
+suite["RelicToolkit.BLS381.PP"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.PP"]["field_final_exp"] = @benchmarkable BLS381.field_final_exp($(rand(BLS381.FP12)))
+suite["RelicToolkit.BLS381.PP"]["curve_miller"] = @benchmarkable BLS381.curve_miller!($(BLS381.FP12()), $(rand(BLS381.EP)), $(rand(BLS381.EP2)))
+suite["RelicToolkit.BLS381.EP"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.EP"]["curve_dbl(::EP)"] = @benchmarkable BLS381.curve_dbl($(rand(BLS381.EP)))
+suite["RelicToolkit.BLS381.EP"]["curve_mul_gen(::EP)"] = @benchmarkable BLS381.curve_mul_gen(BLS381.EP, $(rand(BLS381.BN)))
+suite["RelicToolkit.BLS381.EP2"] = BenchmarkGroup()
+suite["RelicToolkit.BLS381.EP2"]["curve_dbl(::EP2)"] = @benchmarkable BLS381.curve_dbl($(rand(BLS381.EP2)))
+suite["RelicToolkit.BLS381.EP2"]["curve_mul_gen(::EP2)"] = @benchmarkable BLS381.curve_mul_gen(BLS381.EP2, $(rand(BLS381.BN)))
+
+for M in (BLS381,)
+    for T in (M.FP, M.FP2, M.FP6, M.FP12)
+        name = string(T)
+        name in suite || (suite[name] = BenchmarkGroup())
+        suite[name]["+"] = @benchmarkable $(rand(T)) + $(rand(T))
+        suite[name]["-"] = @benchmarkable $(rand(T)) - $(rand(T))
+        suite[name]["*"] = @benchmarkable $(rand(T)) * $(rand(T))
+        suite[name]["inv"] = @benchmarkable inv($(rand(T)))
+        suite[name]["^"] = @benchmarkable $(rand(T)) ^ $(rand(M.BN))
+        suite[name]["iszero(::$name)"] = @benchmarkable iszero($(rand(T)))
+        suite[name]["isone(::$name)"] = @benchmarkable isone($(rand(T)))
+        suite[name]["=="] = @benchmarkable $(rand(T)) == $(rand(T))
+    end
+
+    for T in (M.EP, M.EP2)
+        name = string(T)
+        name in suite || (suite[name] = BenchmarkGroup())
+        suite[name]["=="] = @benchmarkable $(rand(T)) == $(rand(T))
+        suite[name]["+"] = @benchmarkable $(rand(T)) + $(rand(T))
+        suite[name]["-"] = @benchmarkable $(rand(T)) - $(rand(T))
+        suite[name]["*"] = @benchmarkable $(rand(T)) * $(rand(M.BN))
+        suite[name]["isinf(::$name)"] = @benchmarkable isinf($(rand(T)))
+        suite[name]["isvalid(::$name)"] = @benchmarkable isvalid($(rand(T)))
+    end
+end
+
+
+function format_trial(suite, group, res)
     a = allocs(res)
     gct = BenchmarkTools.prettytime(gctime(res))
     t = BenchmarkTools.prettytime(time(res))
     m = BenchmarkTools.prettymemory(memory(res))
-    return "[$suite][$group] $subgroup: $t (alloc: $a, mem: $m, gc: $gct)"
+    return "[$suite][$group]: $t (alloc: $a, mem: $m, gc: $gct)"
 end
 
 # If a cache of tuned parameters already exists, use it, otherwise, tune and cache
@@ -106,10 +89,8 @@ end
 results = run(suite, verbose = true)
 for suiteres in results
     for groupres in suiteres.second
-        for subgroupres in groupres.second
-            msg = format_trial(suiteres.first, groupres.first, subgroupres.first, subgroupres.second)
-            println(msg)
-        end
+        msg = format_trial(suiteres.first, groupres.first, groupres.second)
+        println(msg)
     end
 end
 

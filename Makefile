@@ -1,18 +1,18 @@
 .PHONY: test
 test: clean
-	julia --track-allocation=user -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+	julia --track-allocation=user --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+
+.PHONY: bench
+bench: clean
+	TEST=PerfTests julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
 
 .PHONY: coverage
 coverage:
 	# julia -e 'using Pkg; Pkg.add("Coverage")' && brew install lcov
 	@mkdir -p ./test/coverage
-	julia -e 'using Pkg; "Coverage" in keys(Pkg.installed()) || Pkg.add("Coverage"); using Coverage; LCOV.writefile("./test/coverage/lcov.info", process_folder())'
+	julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; LCOV.writefile("./test/coverage/lcov.info", process_folder())'
 	genhtml -o ./test/coverage ./test/coverage/lcov.info
 	open ./test/coverage/index.html
-
-.PHONY: bench
-bench:
-	julia -e 'import Pkg; Pkg.activate("."); Pkg.test()'
 
 .PHONY: profile
 profile:
