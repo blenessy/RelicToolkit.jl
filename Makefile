@@ -10,7 +10,7 @@ bench: clean
 coverage:
 	# julia -e 'using Pkg; Pkg.add("Coverage")' && brew install lcov
 	@mkdir -p ./test/coverage
-	julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; LCOV.writefile("./test/coverage/lcov.info", process_folder())'
+	julia -e 'using Pkg; using Coverage; LCOV.writefile("./test/coverage/lcov.info", process_folder())'
 	genhtml -o ./test/coverage ./test/coverage/lcov.info
 	open ./test/coverage/index.html
 

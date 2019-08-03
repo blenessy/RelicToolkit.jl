@@ -1,6 +1,5 @@
-export field_add, field_final_exp, field_sub, field_neg, field_mul, field_inv, field_exp,
-    curve_add, curve_dbl, curve_gen, curve_map, curve_miller!, curve_mul, curve_mul_gen,
-    curve_neg, curve_read_bin, curve_sub, curve_write_bin!,
+export field_add, field_final_exp, field_sub, field_neg, field_mul, field_sqr, field_inv, field_exp, field_order,
+    curve_add, curve_dbl, curve_gen, curve_map, curve_miller, curve_mul, curve_neg, curve_sub,
     md_sha256
 
 Base.:(==)(a::BN, b::BN) = iszero(ccall((:bn_cmp, LIB), Cint, (Ref{BN}, Ref{BN}), a, b))
@@ -108,12 +107,13 @@ end
 #Base.promote_rule(::Type{BN}, ::Type{Int}) = BN
 #Base.promote_rule(::Type{BN}, ::Type{BigInt}) = BigInt
 
-bn_mod_basic(a::BN, m::BN) = bn_mod_basic!(BN(undef), a, m)
+Base.mod(a::BN, m::BN) = bn_mod_basic!(BN(undef), a, m)
 
 field_add(a::FP, b::FP) = fp_add_basic!(FP(undef), a, b)
 field_sub(a::FP, b::FP) = fp_sub_basic!(FP(undef), a, b)
 field_neg(a::FP) = fp_neg_basic!(FP(undef), a)
 field_mul(a::FP, b::FP) = fp_mul_comba!(FP(undef), a, b)
+field_sqr(a::FP) = fp_sqr_comba!(FP(undef), a)
 field_inv(a::FP) = fp_inv_lower!(FP(undef), a)
 field_exp(a::FP, b::BN) = fp_exp_slide!(FP(undef), a, b)
 
@@ -121,6 +121,7 @@ field_add(a::FP2, b::FP2) = fp2_add_integ!(FP2(undef), a, b)
 field_sub(a::FP2, b::FP2) = fp2_sub_integ!(FP2(undef), a, b)
 field_neg(a::FP2) = fp2_neg!(FP2(undef), a)
 field_mul(a::FP2, b::FP2) = fp2_mul_integ!(FP2(undef), a, b)
+field_sqr(a::FP2) = fp2_sqr_integ!(FP2(undef), a)
 field_inv(a::FP2) = fp2_inv!(FP2(undef), a)
 field_exp(a::FP2, b::BN) = fp2_exp!(FP2(undef), a, b)
 
@@ -128,14 +129,15 @@ field_add(a::FP6, b::FP6) = fp6_add!(FP6(undef), a, b)
 field_sub(a::FP6, b::FP6) = fp6_sub!(FP6(undef), a, b)
 field_neg(a::FP6) = fp6_neg!(FP6(undef), a)
 field_mul(a::FP6, b::FP6) = fp6_mul_lazyr!(FP6(undef), a, b)
+field_sqr(a::FP6) = fp6_sqr_lazyr!(FP6(undef), a)
 field_inv(a::FP6) = fp6_inv!(FP6(undef), a)
 field_exp(a::FP6, b::BN) = fp6_exp!(FP6(undef), a, b)
 
 field_add(a::FP12, b::FP12) = fp12_add!(FP12(undef), a, b)
-field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
 field_sub(a::FP12, b::FP12) = fp12_sub!(FP12(undef), a, b)
 field_neg(a::FP12) = fp12_neg!(FP12(undef), a)
 field_mul(a::FP12, b::FP12) = fp12_mul_lazyr!(FP12(undef), a, b)
+field_sqr(a::FP12) = fp12_sqr_lazyr!(FP12(undef), a)
 field_inv(a::FP12) = fp12_inv!(FP12(undef), a)
 field_exp(a::FP12, b::BN) = fp12_exp!(FP12(undef), a, b)
 
@@ -144,18 +146,17 @@ curve_dbl(a::EP) = ep_dbl_projc!(EP(undef), a)
 curve_gen(::Type{EP}) = ep_curve_get_gen!(EP(undef))
 curve_map(::Type{EP}, msg::Vector{UInt8}) = ep_map!(EP(undef), msg)
 curve_mul(a::EP, b::BN) = ep_mul_lwnaf!(EP(undef), a, b)
-curve_mul_gen(::Type{EP}, b::BN) = ep_mul_gen!(EP(undef), b)
-curve_neg(a::EP) = ep_neg_basic!(EP(undef), a)
+curve_neg(a::EP) = ep_neg_projc!(EP(undef), a)
 curve_sub(a::EP, b::EP) = ep_sub_projc!(EP(undef), a, b)
 
 curve_add(a::EP2, b::EP2) = ep2_add_projc!(EP2(undef), a, b)
 curve_dbl(a::EP2) = ep2_dbl_projc!(EP2(undef), a)
 curve_gen(::Type{EP2}) = ep2_curve_get_gen!(EP2(undef))
 curve_map(::Type{EP2}, msg::Vector{UInt8}) = ep2_map!(EP2(undef), msg)
-curve_miller!(c::FP12, a::EP, b::EP2) = pp_map_oatep_k12!(c, a, b)
 curve_mul(a::EP2, b::BN) = ep2_mul_lwnaf!(EP2(undef), a, b)
-curve_mul_gen(::Type{EP2}, b::BN) = ep2_mul_gen!(EP2(undef), b)
-curve_neg(a::EP2) = ep2_neg_basic!(EP2(undef), a)
+curve_neg(a::EP2) = ep2_neg_projc!(EP2(undef), a)
 curve_sub(a::EP2, b::EP2) = ep2_sub_projc!(EP2(undef), a, b)
 
-md_sha256(msg::Vector{UInt8}) = map_sh256(msg)
+field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
+curve_miller(::Type{FP12}, a::EP, b::EP2) = pp_map_oatep_k12!(FP12(undef), a, b)
+md_sha256(msg::Vector{UInt8}) = md_map_sh256(msg)
