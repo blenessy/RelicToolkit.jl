@@ -1,12 +1,18 @@
+[![Build Status](https://travis-ci.com/blenessy/RelicToolkit.jl.svg?branch=master)](https://travis-ci.com/blenessy/RelicToolkit.jl)
+[![codecov](https://codecov.io/gh/blenessy/RelicToolkit.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/blenessy/RelicToolkit.jl)
+
 # Introduction
 
 Julia Wrapper for the [Relic Toolkit](https://github.com/relic-toolkit/relic).
+
+The goal is to facilitate a PBC lib for Julia.
+This depends mostly on the maturity of the underlying RELIC toolkit.
 
 # Key Features
 
 - [x] Supports multiple Curves (BLS381 and BN254)
 - [x] Single-line (`using ...`) changes curve
-- [x] Supports Both 32 and 64 bit machines
+- [x] Supports both 32 and 64 bit machines
 - [x] Supports common operative systems (Linux, Mac, Windows)
 - [x] State-of-the art performance
 - [ ] Production Ready (timing, side-channel resistance)
@@ -64,7 +70,7 @@ Validate the signature:
 # 0.1.0: Provide smooth API for implementing BLS Signatures
 
 - [ ] PoC finished (missing Windows)
-- [ ] Add `.travis.yml` and improve `README.md` so that the community can help
+- [x] Add `.travis.yml` and improve `README.md` so that the community can help
 - [x] Add conversion from Integer
 - [x] Add syntactic sugar by overloading applicable operators (e.g. +, -, *, //, ^)
 - [x] Use BN(undef) and FP(undef) where safe to save some clock cycles
@@ -73,6 +79,10 @@ Validate the signature:
 - [x] Implement zero and one functions
 - [x] Unit tests for EPX
 - [x] BLS Schema System Test and example in README.md
+- [ ] `README.md` chapter about performance
+- [ ] `README.md` chapter about configuration
+- [ ] `README.md` chapter to contributors
+- [ ] Test on Windows
 
 # 0.2.0: Facilitate timing and side-channel resistance
 
