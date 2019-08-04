@@ -1,5 +1,5 @@
-export field_add, field_final_exp, field_sub, field_neg, field_mul, field_sqr, field_inv, field_exp, field_order,
-    curve_add, curve_dbl, curve_gen, curve_map, curve_miller, curve_mul, curve_neg, curve_sub,
+export field_add, field_sub, field_neg, field_mul, field_sqr, field_inv, field_exp,
+    curve_add, curve_dbl, curve_gen, curve_map, curve_mul, curve_neg, curve_order, curve_sub,
     md_sha256
 
 Base.:(==)(a::BN, b::BN) = iszero(ccall((:bn_cmp, LIB), Cint, (Ref{BN}, Ref{BN}), a, b))
@@ -147,6 +147,7 @@ curve_gen(::Type{EP}) = ep_curve_get_gen!(EP(undef))
 curve_map(::Type{EP}, msg::Vector{UInt8}) = ep_map!(EP(undef), msg)
 curve_mul(a::EP, b::BN) = ep_mul_lwnaf!(EP(undef), a, b)
 curve_neg(a::EP) = ep_neg_projc!(EP(undef), a)
+curve_order(::Type{EP}) = ep_curve_get_ord!(BN(undef))
 curve_sub(a::EP, b::EP) = ep_sub_projc!(EP(undef), a, b)
 
 curve_add(a::EP2, b::EP2) = ep2_add_projc!(EP2(undef), a, b)
@@ -155,8 +156,7 @@ curve_gen(::Type{EP2}) = ep2_curve_get_gen!(EP2(undef))
 curve_map(::Type{EP2}, msg::Vector{UInt8}) = ep2_map!(EP2(undef), msg)
 curve_mul(a::EP2, b::BN) = ep2_mul_lwnaf!(EP2(undef), a, b)
 curve_neg(a::EP2) = ep2_neg_projc!(EP2(undef), a)
+curve_order(::Type{EP2}) = ep2_curve_get_ord!(BN(undef))
 curve_sub(a::EP2, b::EP2) = ep2_sub_projc!(EP2(undef), a, b)
 
-field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
-curve_miller(::Type{FP12}, a::EP, b::EP2) = pp_map_oatep_k12!(FP12(undef), a, b)
 md_sha256(msg::Vector{UInt8}) = md_map_sh256(msg)

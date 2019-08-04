@@ -1,10 +1,13 @@
+CURVE ?= BLS381
+
 .PHONY: test
 test: clean
-	julia --track-allocation=user --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+	TEST=SysTests CURVE=$(CURVE) julia --track-allocation=user --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+	TEST=UnitTests CURVE=$(CURVE) julia --track-allocation=user --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
 
 .PHONY: bench
 bench: clean
-	TEST=PerfTests julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
+	TEST=PerfTests CURVE=$(CURVE) julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
 
 .PHONY: coverage
 coverage:

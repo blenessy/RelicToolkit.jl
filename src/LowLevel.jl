@@ -60,6 +60,11 @@ function ep_curve_get_gen!(g::EP)
     return g
 end
 
+function ep_curve_get_ord!(n::BN)
+    ccall((:ep_curve_get_ord, LIB), Cvoid, (Ref{BN},), n)
+    return n
+end
+
 function ep_map!(p::EP, msg::Vector{UInt8})
     ccall((:ep_map, LIB), Cvoid, (Ref{EP}, Ptr{UInt8}, Cint), p, msg, length(msg))
     return p
@@ -116,6 +121,11 @@ end
 function ep2_curve_get_gen!(g::EP2)
     ccall((:ep2_curve_get_gen, LIB), Cvoid, (Ref{EP2},), g)
     return g
+end
+
+function ep2_curve_get_ord!(n::BN)
+    ccall((:ep2_curve_get_ord, LIB), Cvoid, (Ref{BN},), n)
+    return n
 end
 
 function ep2_map!(p::EP2, msg::Vector{UInt8})

@@ -16,6 +16,10 @@ module BN254
         include(joinpath(@__DIR__, "Model.jl"))
         include(joinpath(@__DIR__, "LowLevel.jl"))
         include(joinpath(@__DIR__, "HighLevel.jl"))
+
+        export curve_miller, field_final_exp
+        curve_miller(a::EP, b::EP2) = pp_map_oatep_k12!(FP12(undef), a, b)
+        field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
     end
 end
 
@@ -28,6 +32,10 @@ module BLS381
         include(joinpath(@__DIR__, "Model.jl"))
         include(joinpath(@__DIR__, "LowLevel.jl"))
         include(joinpath(@__DIR__, "HighLevel.jl"))
+
+        export curve_miller, field_final_exp
+        curve_miller(a::EP, b::EP2) = pp_map_oatep_k12!(FP12(undef), a, b)
+        field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
     end
 end
 

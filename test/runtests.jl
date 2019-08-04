@@ -1,6 +1,8 @@
-const DEFAULT_SUITES = "UnitTests"
+const TEST = get(ENV, "TEST", "UnitTests")
+const CURVE = get(ENV, "CURVE", "BLS381")
 
-for test in split(get(ENV, "TEST", DEFAULT_SUITES), ",")
-    include(joinpath(@__DIR__, "$test.jl"))
-end
+@info TEST, CURVE
+
+eval(Meta.parse("using RelicToolkit.$CURVE"))
+include(joinpath(@__DIR__, "$TEST.jl"))
 

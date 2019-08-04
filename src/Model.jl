@@ -1,4 +1,4 @@
-export BN, FP, FP2, FP6, FP12, FPX, EP, EP2, EPX
+export BN, FP, FP2, FP6, FP12, FPX, EP, EP2, EPX, MD_LEN, FP_ST_SIZE
 
 # Load constants from lib
 const MD_LEN = Int(unsafe_load(cglobal((:JL_RLC_MD_LEN, LIB), Csize_t)))
@@ -119,8 +119,8 @@ mutable struct EP <: EPX
     y::FPData
     z::FPData
     norm::Cint
-    EP(::UndefInitializer) = new()
     EP() = new(ZERO_FP_DATA, ZERO_FP_DATA, ZERO_FP_DATA, zero(Cint))
+    EP(::UndefInitializer) = new()
     EP(bin::Vector{UInt8}) = ep_read_bin!(EP(), bin)
 end
 
@@ -129,7 +129,7 @@ mutable struct EP2 <: EPX
     y::FP2Data
     z::FP2Data
     norm::Cint
-    EP2(::UndefInitializer) = new()
     EP2() = new(ZERO_FP2_DATA, ZERO_FP2_DATA, ZERO_FP2_DATA, zero(Cint))
+    EP2(::UndefInitializer) = new()
     EP2(bin::Vector{UInt8}) = ep2_read_bin!(EP2(), bin)
 end
