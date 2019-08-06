@@ -1,11 +1,14 @@
 using BinaryProvider # requires BinaryProvider 0.3.0 or later
+using Libdl: dlext
 
 # Parse some basic command-line arguments
 const verbose = "--verbose" in ARGS
 const prefix = Prefix(get([a for a in ARGS if a != "--verbose"], 1, joinpath(@__DIR__, "usr")))
+const LIBDIR = Sys.iswindows() ? Sys.BINDIR : joinpath(Sys.BINDIR, Base.LIBDIR)
+
 const products = [
-    LibraryProduct(prefix, "librelic_gmp_pbc_bls381", :librelic_gmp_pbc_bls381),
-    LibraryProduct(prefix, "librelic_gmp_pbc_bn254", :librelic_gmp_pbc_bn254),
+    LibraryProduct(LIBDIR, "librelic_gmp_pbc_bls381", :librelic_gmp_pbc_bls381),
+    LibraryProduct(LIBDIR, "librelic_gmp_pbc_bn254", :librelic_gmp_pbc_bn254),
 ]
 
 # Download binaries from hosted location
@@ -27,6 +30,17 @@ if any(!satisfied(p; verbose=verbose) for p in products)
         # Download and install binaries
         url, tarball_hash = choose_download(download_info)
         install(url, tarball_hash; prefix=prefix, force=true, verbose=verbose)
+        # The libs link towards libgmp-10.dll - this is an easy workaround
+        if Sys.iswindows()
+            cp(joinpath(LIBDIR, "libgmp.dll"), joinpath(Sys.BINDIR, "libgmp-10.dll"), force=true)
+        end
+        # Workaround: Copy libs to Sys.BINDIR to make the Windows libs work
+        # tl;dr: there seems to bug when native libs depend on other native libs (libgmp-10.dll in our case)
+        for p in products
+            for n in p.libnames
+                cp(joinpath(libdir(prefix), "$n.$dlext"), joinpath(LIBDIR, "$n.$dlext"), force=true)
+            end
+        end
     catch e
         if typeof(e) <: ArgumentError
             error("Your platform $(Sys.MACHINE) is not supported by this package!")
