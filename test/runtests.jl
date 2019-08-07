@@ -1,5 +1,5 @@
 const TEST = get(ENV, "TEST", "UnitTests")
-const CURVE = get(ENV, "CURVE", "BLS381")
+const CURVE = get(ENV, "RELIC_TOOLKIT_CURVE", "BLS381")
 
 @info TEST, CURVE
 

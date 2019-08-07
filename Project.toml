@@ -1,7 +1,7 @@
 name = "RelicToolkit"
 uuid = "976a8074-9f4c-11e9-1019-17da4c65f546"
 authors = ["Zalan Blenessy <zalan@radixdlt.com>"]
-version = "0.4.0-613-g613795f7-1"
+version = "0.1.0"
 
 [deps]
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"

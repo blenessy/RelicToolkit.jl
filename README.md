@@ -5,8 +5,7 @@
 
 Julia Wrapper for the [Relic Toolkit](https://github.com/relic-toolkit/relic).
 
-The goal is to facilitate a PBC lib for Julia.
-This depends mostly on the maturity of the underlying RELIC toolkit.
+The goal is to facilitate a user-friendly, secure, and performant PBC lib for Julia.
 
 # Key Features
 
@@ -67,9 +66,65 @@ Validate the signature:
 @assert e(P, H("foo")) == e(G, S)
 ```
 
-# 0.1.0: Provide smooth API for implementing BLS Signatures
+# Performance
 
-- [ ] PoC finished (missing Windows)
+You can run the performance tests with:
+
+```julia
+make CURVE=BLS381 bench
+```
+
+Performance is state of the art (on par with C).
+You should get something like this on a 4-5 year old 2.2GHz Core i7:
+
+```
+...
+[PP][field_final_exp]: 947.266 μs (alloc: 1, mem: 624 bytes, gc: 0.000 ns)
+[PP][curve_miller]: 1.734 ms (alloc: 1, mem: 624 bytes, gc: 0.000 ns)
+...
+```
+
+Since the pairing function is defined as `field_final_exp(curve_miller(P, Q))` you can estimate 
+its performance by adding these times together.
+
+# Configurations
+
+Cofiguration is done through environment variables.
+The number of configuration possibilities should be limited for simplicity.
+
+Key | Default | Description
+--- | --- | ---
+RELIC_TOOLKIT_CURVE | (all curves are loaded) | Used for limiting, which curve is loaded (saves memory) at startup. Possible values are: `BN254` and `BLS381`.
+
+# Contibutions
+
+Contributions are welcome!
+If you are unsure where to chip in, please see the roadmap below.
+
+## Testing
+
+Currect code coverage is 100% and the author would like to keep it that way.
+
+Test | Purpose
+--- | ---
+`UnitTests` | Make sure the `ccall` are working and do not crash Julia.
+`SysTests` | Protect complete features from breaking
+`PerfTests` | Fair benchmarks for performance awareness
+
+## Fixes and minor features
+
+Just create a PR (as usual in GitHub) and make sure that the code coverage stays at 100%.
+
+## High-level API changes and new Features
+
+1. Please start by creating an issue and explain your use-case and goal.
+2. Create a PR (as usual in GitHub) with the implementation and add a new `SysTest` to protect your use-case.
+
+# Roadmap
+
+## 0.1.0: Provide smooth API for implementing BLS Signatures
+
+- [x] PoC finished (missing Windows)
 - [x] Add `.travis.yml` and improve `README.md` so that the community can help
 - [x] Add conversion from Integer
 - [x] Add syntactic sugar by overloading applicable operators (e.g. +, -, *, //, ^)
@@ -79,26 +134,27 @@ Validate the signature:
 - [x] Implement zero and one functions
 - [x] Unit tests for EPX
 - [x] BLS Schema System Test and example in README.md
-- [ ] `README.md` chapter about performance
-- [ ] `README.md` chapter about configuration
-- [ ] `README.md` chapter to contributors
-- [ ] Test on Windows
+- [x] `README.md` chapter about performance
+- [x] `README.md` chapter about configuration
+- [x] `README.md` chapter to contributors
+- [x] Tested on Windows
+- [x] Tested 32-bit Linux
 
-# 0.2.0: Facilitate timing and side-channel resistance
+## 0.2.0: Facilitate timing and side-channel resistance
 
 - [ ] Fix `TODO`s in code
 - [ ] Add `gmp-sec` libs for timing resistance.
 - [ ] Use timing resistent `FP`, `EP`, and `PP` configs and functions.
 - [ ] Add tests that measure time, CPU, Memory usage consistency over time. 
 
-# 0.x.0: Production Ready
-
-- [ ] Academic/security audits (help needed)
-
-# 1.0.0: 
+## 0.x.0: PBC feature complete
 
 - [ ] Julia 1.3.x and multi-thread support
 - [ ] Implement all logical operators for BN, FP, and FPX
 - [ ] Support all ARCH/OS combos that Julia and the Relic Toolkit has in common
 - [ ] Support (signed) integers where BN is supported with FP and EP
 - [ ] BN should extend Signed and should be automatically convertible/promotable to BigInt
+
+## 1.0.0: Production Ready
+
+- [ ] Academic/security audits (help needed)

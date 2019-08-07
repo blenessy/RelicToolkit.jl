@@ -31,12 +31,12 @@ matrix:
         - choco install julia
 
 script:
-  - TEST=SysTests CURVE=BLS381 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
-  - TEST=UnitTests CURVE=BLS381 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
-  - TEST=PerfTests CURVE=BLS381 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
-  - TEST=SysTests CURVE=BN254 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
-  - TEST=UnitTests CURVE=BN254 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
-  - TEST=PerfTests CURVE=BN254 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
+  - TEST=SysTests RELIC_TOOLKIT_CURVE=BLS381 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+  - TEST=UnitTests RELIC_TOOLKIT_CURVE=BLS381 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+  - TEST=PerfTests RELIC_TOOLKIT_CURVE=BLS381 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
+  - TEST=SysTests RELIC_TOOLKIT_CURVE=BN254 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+  - TEST=UnitTests RELIC_TOOLKIT_CURVE=BN254 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
+  - TEST=PerfTests RELIC_TOOLKIT_CURVE=BN254 julia --compiled-modules=no -e 'import Pkg; Pkg.activate("."); Pkg.build(); Pkg.test()'
 
 # jobs:
 #   include:

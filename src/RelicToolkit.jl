@@ -2,7 +2,7 @@ module RelicToolkit
 
 module Config
     macro enabled(id)
-        env = split(get(ENV, "LIBRELIC", id), ",")
+        env = split(get(ENV, "RELIC_TOOLKIT_CURVE", id), ",")
         return id in env ? :(true) : :(false) 
     end
 end
