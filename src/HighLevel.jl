@@ -107,7 +107,7 @@ end
 #Base.promote_rule(::Type{BN}, ::Type{Int}) = BN
 #Base.promote_rule(::Type{BN}, ::Type{BigInt}) = BigInt
 
-Base.mod(a::BN, m::BN) = bn_mod_basic!(BN(undef), a, m)
+Base.mod(a::BN, m::BN) = bn_mod_basic!(BN(), a, m)
 
 field_add(a::FP, b::FP) = fp_add_basic!(FP(undef), a, b)
 field_sub(a::FP, b::FP) = fp_sub_basic!(FP(undef), a, b)
