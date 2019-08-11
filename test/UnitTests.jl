@@ -143,6 +143,7 @@ end
 
 @testset "curve_miller" begin
     p, q = rand(EP), rand(EP2)
+    @test curve_miller(p, q) == curve_miller(q, p)
     @test !iszero(curve_miller(p, q))
 end
 
