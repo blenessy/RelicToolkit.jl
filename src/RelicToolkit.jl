@@ -19,6 +19,7 @@ module BN254
 
         export curve_miller, field_final_exp
         curve_miller(a::EP, b::EP2) = pp_map_oatep_k12!(FP12(undef), a, b)
+        curve_miller(a::EP2, b::EP) = pp_map_oatep_k12!(FP12(undef), b, a)
         field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
     end
 end
@@ -35,6 +36,7 @@ module BLS381
 
         export curve_miller, field_final_exp
         curve_miller(a::EP, b::EP2) = pp_map_oatep_k12!(FP12(undef), a, b)
+        curve_miller(a::EP2, b::EP) = pp_map_oatep_k12!(FP12(undef), b, a)
         field_final_exp(a::FP12) = pp_exp_k12!(FP12(undef), a)
     end
 end
