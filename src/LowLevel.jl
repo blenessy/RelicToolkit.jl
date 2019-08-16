@@ -45,13 +45,13 @@ function bn_write_bin!(bin::Vector{UInt8}, a::BN)
     return bin
 end
 
-function ep_add_projc!(c::EP, a::EP, b::EP)
-    ccall((:ep_add_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{EP}), c, a, b)
+function ep_add_basic!(c::EP, a::EP, b::EP)
+    ccall((:ep_add_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{EP}), c, a, b)
     return c
 end
 
-function ep_dbl_projc!(c::EP, a::EP)
-    ccall((:ep_dbl_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
+function ep_dbl_basic!(c::EP, a::EP)
+    ccall((:ep_dbl_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
     return c
 end
 
@@ -75,15 +75,10 @@ function ep_mul_lwnaf!(c::EP, a::EP, b::BN)
     return c
 end
 
-function ep_neg_projc!(c::EP, a::EP)
-    ccall((:ep_neg_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
+function ep_neg_basic!(c::EP, a::EP)
+    ccall((:ep_neg_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}), c, a)
     return c
 end
-
-# function ep_norm!(r::EP, p::EP)
-#     ccall((:ep_norm, LIB), Cvoid, (Ref{EP}, Ref{EP}), r, p)
-#     return r
-# end
 
 function ep_read_bin!(a::EP, bin::Vector{UInt8})
     ccall((:ep_read_bin, LIB), Cvoid, (Ref{EP}, Ptr{UInt8}, Cint), a, bin, length(bin))
@@ -97,8 +92,8 @@ end
 
 ep_size_bin(ep::EP, pack::Bool) = Int(ccall((:ep_size_bin, LIB), Cint, (Ref{EP}, Cint), ep, pack ? one(Cint) : zero(Cint)))
 
-function ep_sub_projc!(c::EP, a::EP, b::EP)
-    ccall((:ep_sub_projc, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{EP}), c, a, b)
+function ep_sub_basic!(c::EP, a::EP, b::EP)
+    ccall((:ep_sub_basic, LIB), Cvoid, (Ref{EP}, Ref{EP}, Ref{EP}), c, a, b)
     return c
 end
 
@@ -108,13 +103,13 @@ function ep_write_bin!(bin::Vector{UInt8}, a::EP, pack::Bool)
     return bin
 end
 
-function ep2_add_projc!(c::EP2, a::EP2, b::EP2)
-    ccall((:ep2_add_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
+function ep2_add_basic!(c::EP2, a::EP2, b::EP2)
+    ccall((:ep2_add_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
     return c
 end
 
-function ep2_dbl_projc!(c::EP2, a::EP2)
-    ccall((:ep2_dbl_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
+function ep2_dbl_basic!(c::EP2, a::EP2)
+    ccall((:ep2_dbl_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
     return c
 end
 
@@ -138,15 +133,10 @@ function ep2_mul_lwnaf!(c::EP2, a::EP2, b::BN)
     return c
 end
 
-function ep2_neg_projc!(c::EP2, a::EP2)
-    ccall((:ep2_neg_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
+function ep2_neg_basic!(c::EP2, a::EP2)
+    ccall((:ep2_neg_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), c, a)
     return c
 end
-
-# function ep2_norm!(r::EP2, p::EP2)
-#     ccall((:ep2_norm, LIB), Cvoid, (Ref{EP2}, Ref{EP2}), r, p)
-#     return r
-# end
 
 function ep2_rand!(ep::EP2)
     ccall((:ep2_rand, LIB), Cvoid, (Ref{EP2},), ep)
@@ -160,8 +150,8 @@ end
 
 ep2_size_bin(ep::EP2, pack::Bool) = Int(ccall((:ep2_size_bin, LIB), Cint, (Ref{EP2}, Cint), ep, pack ? one(Cint) : zero(Cint)))
 
-function ep2_sub_projc!(c::EP2, a::EP2, b::EP2)
-    ccall((:ep2_sub_projc, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
+function ep2_sub_basic!(c::EP2, a::EP2, b::EP2)
+    ccall((:ep2_sub_basic, LIB), Cvoid, (Ref{EP2}, Ref{EP2}, Ref{EP2}), c, a, b)
     return c
 end
 

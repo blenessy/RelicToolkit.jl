@@ -134,6 +134,20 @@ end
     end
 end
 
+@testset "curve operations output affline points" begin
+    for T in (EP, EP2)
+        a = rand(T)
+        @test isone(a.norm)
+        @test isone((a + a).norm)
+        @test isone(curve_dbl(a).norm)
+        @test isone((2a).norm)
+        @test isone((-a).norm)
+        @test isone((a * -1).norm)
+        @test isone((2a - a).norm)
+    end
+end
+
+
 @testset "curve_map" begin
     for T in (EP, EP2)
         point = curve_map(T, Vector{UInt8}("test"))
@@ -145,11 +159,6 @@ end
     p, q = rand(EP), rand(EP2)
     @test curve_miller(p, q) == curve_miller(q, p)
     @test !iszero(curve_miller(p, q))
-end
-
-@testset "curve_order" begin
-    @test curve_order(EP) == curve_order(EP2)
-    @test !iszero(curve_order(EP))
 end
 
 @testset "md_sha256" begin
