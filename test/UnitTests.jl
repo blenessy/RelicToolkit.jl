@@ -48,6 +48,51 @@ end
     @test BN(1) >= BN(1)
 end
 
+
+@testset "BN mul" begin
+    @test BN(1) * BN(1) == BN(1)
+    @test BN(1) * BN(0) == BN(0)
+    @test BN(2) * BN(3) == BN(6)
+    @test BN(-2) * BN(3) == BN(-6)
+    @test 0x3 * BN(2) == BN(6)
+    @test Int8(-3) * BN(2) == BN(-6)
+    @test Int8(3) * BN(2) == BN(6)
+    @test BN(2) * Int128(-3) == BN(-6)
+end
+
+@testset "BN add" begin
+    @test BN(0) + BN(0) == BN(0)
+    @test BN(1) + BN(0) == BN(1)
+    @test BN(2) + BN(3) == BN(5)
+    @test BN(-2) + BN(3) == BN(1)
+    @test BN(3) - 0x2 == BN(1)
+    @test Int8(-3) + BN(2) == BN(-1)
+    @test BN(2) + Int128(-3) == BN(-1)
+end
+
+@testset "BN sub" begin
+    @test BN(0) - BN(0) == BN(0)
+    @test BN(1) - BN(0) == BN(1)
+    @test BN(3) - BN(2) == BN(1)
+    @test BN(-2) - BN(3) == BN(-5)
+    @test BN(2) - 3 == BN(-1)
+    @test 0x3 - BN(2) == BN(1)
+    @test Int8(-3) - BN(-2) == BN(-1)
+    @test BN(2) - Int128(-3) == BN(5)
+end
+
+@testset "BN invmod" begin
+    @test_throws DomainError invmod(BN(2), BN(0))
+    @test_throws DomainError invmod(BN(5), BN(5))
+    @test_throws DomainError invmod(BN(-5), BN(5))
+    for i in (-11, -9, -8, -7, -6, -4, -3, -2, -1, 1, 2, 3, 4, 6, 7, 8, 9, 11)
+        @test invmod(BN(i), BN(5)) == BN(invmod(i, 5))
+        @test invmod(BN(i), BN(-5)) == BN(invmod(i, -5))
+        @test invmod(BN(i), 5) == BN(invmod(i, 5))
+        @test invmod(i, BN(5)) == BN(invmod(i, 5))
+    end
+end
+
 @testset "string method works for BN and FP" begin
     @test string(BN(123)) == "123"
     @test string(BN(-123)) == "-123"
@@ -61,7 +106,8 @@ end
 
 @testset "mod(::BN, ::BN)" begin
     @test isone(mod(BN(8), BN(7)))
-    @test mod(BN(8), fp_prime_get()) == BN(8)
+    @test mod(BN(8), BigInt(fp_prime_get())) == BN(8)
+    @test mod(8, BN(15)) == BN(8)
 end
 
 @testset "zero and iszero" begin
@@ -131,6 +177,7 @@ end
         @test a + a == BN(2) * a == a * BN(2)
         @test -a == a * -1
         @test 2a - a == a 
+
     end
 end
 
@@ -153,6 +200,10 @@ end
         point = curve_map(T, Vector{UInt8}("test"))
         @test !isinf(point) && isvalid(point)
     end
+end
+
+@testset "curve_order" begin
+    @test curve_order(EP) == curve_order(EP2)
 end
 
 @testset "curve_miller" begin

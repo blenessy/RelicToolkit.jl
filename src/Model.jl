@@ -16,6 +16,8 @@ const FP_SIZE = Int(FP_ST_SIZE // LIMB_SIZE)
 
 # Type aliases 
 const Limb = Base.GMP.Limb
+const SLimbMax = Base.GMP.SLimbMax
+const ULimbMax = Base.GMP.ULimbMax
 const FPData = NTuple{FP_SIZE,Limb}
 const FP2Data = NTuple{2,FPData}
 const FP6Data = NTuple{3,FP2Data}

@@ -8,6 +8,57 @@ Base.:(<)(a::BN, b::BN) = b > a
 Base.:(<=)(a::BN, b::BN) = !(a > b)
 Base.:(>=)(a::BN, b::BN) = !(a < b)
 
+Base.:(*)(a::BN, b) = bn_mul_comba!(BN(), a, BN(b))
+Base.:(*)(a::BN, b::BN) = bn_mul_comba!(BN(), b, a)
+Base.:(*)(a::Integer, b::BN) = b * a
+Base.:(*)(a::BN, b::ULimbMax) = bn_mul_dig!(BN(), a, convert(Limb, b))
+function Base.:(*)(a::BN, b::SLimbMax)
+    negb = -b
+    c = BN()
+    if signbit(b)
+        bn_mul_dig!(c, a, convert(Limb, negb))
+        c.sign = xor(c.sign, 1)
+    else # side-channel resistance by balancing the if else branches
+        c.sign = xor(c.sign, 1) # side-channel resistance (no logical effect)
+        bn_mul_dig!(c, a, convert(Limb, b))
+    end
+    return c
+end
+
+Base.:(+)(a::BN, b) = bn_add!(BN(), a, BN(b))
+Base.:(+)(a::BN, b::BN) = bn_add!(BN(), a, b)
+Base.:(+)(a::Integer, b::BN) = b + a
+Base.:(+)(a::BN, b::ULimbMax) = bn_add_dig!(BN(), a, convert(Limb, b))
+function Base.:(+)(a::BN, b::SLimbMax)
+    negb = -b
+    return signbit(b) ? bn_sub_dig!(BN(), a, convert(Limb, negb)) : bn_add_dig!(BN(), a, convert(Limb, b))
+end
+
+Base.:(-)(a::BN) = bn_neg!(BN(), a)
+Base.:(-)(a::BN, b) = bn_sub!(BN(), a, BN(b))
+Base.:(-)(a::BN, b::BN) = bn_sub!(BN(), a, b)
+Base.:(-)(a::Integer, b::BN) = -b + a
+Base.:(-)(a::BN, b::ULimbMax) = bn_sub_dig!(BN(), a, convert(Limb, b))
+function Base.:(-)(a::BN, b::SLimbMax)
+    negb = -b
+    return signbit(b) ? bn_add_dig!(BN(), a, convert(Limb, negb)) : bn_sub_dig!(BN(), a, convert(Limb, b))
+end
+
+# function Base.invmod(a::BN, m::BN)
+#     c, d = BN(), BN()
+#     ccall((:bn_gcd_ext_lehme, LIB), Cvoid, (Ref{BN}, Ref{BN}, Ptr{BN}, Ref{BN}, Ref{BN}), c, d, C_NULL, a, m)
+#     if !isone(c)
+#         val = (BigInt(a), BigInt(m))
+#         throw(DomainError(val, "Greatest common divisor is $(val[1])."))
+#     end
+#     return bn_mod_basic!(c, isone(a.sign) ? bn_sub!(d, m, d) : bn_add!(d, m, d), m)
+# end
+
+# TODO: this is slower than the BigInt variant, but faster then bn_gcd_ext_lehme above
+Base.invmod(a::BN, m) = BN(invmod(BigInt(a), m))
+Base.invmod(a, m::BN) = BN(invmod(a, BigInt(m)))
+Base.invmod(a::BN, m::BN) = BN(invmod(BigInt(a), BigInt(m)))
+
 Base.:(==)(a::FP, b::FP) = iszero(ccall((:fp_cmp, LIB), Cint, (Ref{FP}, Ref{FP}), a, b))
 Base.:(==)(a::FP2, b::FP2) = iszero(ccall((:fp2_cmp, LIB), Cint, (Ref{FP2}, Ref{FP2}), a, b))
 Base.:(==)(a::FP6, b::FP6) = iszero(ccall((:fp6_cmp, LIB), Cint, (Ref{FP6}, Ref{FP6}), a, b))
@@ -108,6 +159,8 @@ end
 #Base.promote_rule(::Type{BN}, ::Type{BigInt}) = BigInt
 
 Base.mod(a::BN, m::BN) = bn_mod_basic!(BN(), a, m)
+Base.mod(a, m::BN) = bn_mod_basic!(BN(), BN(a), m)
+Base.mod(a::BN, m) = bn_mod_basic!(BN(), a, BN(m))
 
 field_add(a::FP, b::FP) = fp_add_basic!(FP(undef), a, b)
 field_sub(a::FP, b::FP) = fp_sub_basic!(FP(undef), a, b)
@@ -147,7 +200,7 @@ curve_gen(::Type{EP}) = ep_curve_get_gen!(EP(undef))
 curve_map(::Type{EP}, msg::Vector{UInt8}) = ep_map!(EP(undef), msg)
 curve_mul(a::EP, b::BN) = ep_mul_lwnaf!(EP(undef), a, b)
 curve_neg(a::EP) = ep_neg_basic!(EP(undef), a)
-curve_order(::Type{EP}) = ep_curve_get_ord!(BN(undef))
+curve_order(::Type{EP}) = ep_curve_get_ord!(BN())
 curve_sub(a::EP, b::EP) = ep_sub_basic!(EP(undef), a, b)
 
 curve_add(a::EP2, b::EP2) = ep2_add_basic!(EP2(undef), a, b)
@@ -156,7 +209,7 @@ curve_gen(::Type{EP2}) = ep2_curve_get_gen!(EP2(undef))
 curve_map(::Type{EP2}, msg::Vector{UInt8}) = ep2_map!(EP2(undef), msg)
 curve_mul(a::EP2, b::BN) = ep2_mul_lwnaf!(EP2(undef), a, b)
 curve_neg(a::EP2) = ep2_neg_basic!(EP2(undef), a)
-curve_order(::Type{EP2}) = ep2_curve_get_ord!(BN(undef))
+curve_order(::Type{EP2}) = ep2_curve_get_ord!(BN())
 curve_sub(a::EP2, b::EP2) = ep2_sub_basic!(EP2(undef), a, b)
 
 md_sha256(msg::Vector{UInt8}) = md_map_sh256(msg)

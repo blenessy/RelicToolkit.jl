@@ -11,6 +11,14 @@ suite = BenchmarkGroup()
 
 suite["BN"] = BenchmarkGroup()
 suite["BN"]["BigInt(::BN)"] = @benchmarkable BigInt($(rand(BN)))
+
+suite["BN"]["invmod(::BN, ::BN)"] = @benchmarkable invmod($(rand(BN)), $(curve_order(EP)))
+suite["BN"]["invmod(::BigInt, ::BigInt)"] = @benchmarkable invmod($(BigInt(rand(BN))), $(BigInt(curve_order(EP))))
+suite["BN"]["mod(::BN, ::BN)"] = @benchmarkable mod($(rand(BN)), $(curve_order(EP)))
+suite["BN"]["mod(::BigInt, ::BigInt)"] = @benchmarkable mod($(BigInt(rand(BN))), $(BigInt(curve_order(EP))))
+suite["BN"]["::BN * ::BN"] = @benchmarkable $(rand(BN)) * $(rand(BN))
+suite["BN"]["::BigInt * ::BigInt"] = @benchmarkable $(BigInt(rand(BN))) * $(BigInt(rand(BN)))
+
 suite["FP"] = BenchmarkGroup()
 suite["FP"]["rand(::Type{FP})"] = @benchmarkable rand(FP)
 suite["FP"]["FP(::Int)"] = @benchmarkable FP(rand(Int))

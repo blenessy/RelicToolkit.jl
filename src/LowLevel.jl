@@ -21,6 +21,33 @@ end
 # the data is always last so this should be safe for both BN and BigInt
 unsafe_bnptr(bn::BN) = Ptr{Limb}(pointer_from_objref(bn) + sizeof(bn) - sizeof(bn.dp))
 
+function bn_add_dig!(c::BN, a::BN, b::Limb)
+    ccall((:bn_add_dig, LIB), Cvoid, (Ref{BN}, Ref{BN}, Limb), c, a, b)
+    return c
+end
+function bn_add!(c::BN, a::BN, b::BN)
+    ccall((:bn_add, LIB), Cvoid, (Ref{BN}, Ref{BN}, Ref{BN}), c, a, b)
+    return c
+end
+
+function bn_mod_basic!(c::BN, a::BN, m::BN)
+    ccall((:bn_mod_basic, LIB), Cvoid, (Ref{BN}, Ref{BN}, Ref{BN}), c, a, m)
+    return c
+end
+
+function bn_mul_dig!(c::BN, a::BN, b::Limb)
+    ccall((:bn_mul_dig, LIB), Cvoid, (Ref{BN}, Ref{BN}, Limb), c, a, b)
+    return c
+end
+function bn_mul_comba!(c::BN, a::BN, b::BN)
+    ccall((:bn_mul_comba, LIB), Cvoid, (Ref{BN}, Ref{BN}, Ref{BN}), c, a, b)
+    return c
+end
+function bn_neg!(c::BN, a::BN)
+    ccall((:bn_neg, LIB), Cvoid, (Ref{BN}, Ref{BN}), c, a)
+    return c
+end
+
 function bn_rand!(a::BN, bits::Int)
     if bits < 1 || bits > typemax(Cint)
         error("invalid bits specified: $bits")
@@ -33,12 +60,16 @@ function bn_read_bin!(a::BN, bin::Vector{UInt8})
     return a
 end
 
-function bn_mod_basic!(c::BN, a::BN, m::BN)
-    ccall((:bn_mod_basic, LIB), Cvoid, (Ref{BN}, Ref{BN}, Ref{BN}), c, a, m)
+bn_size_bin(a::BN) = Int(ccall((:bn_size_bin, LIB), Cint, (Ref{BN},), a))
+
+function bn_sub_dig!(c::BN, a::BN, b::Limb)
+    ccall((:bn_sub_dig, LIB), Cvoid, (Ref{BN}, Ref{BN}, Limb), c, a, b)
     return c
 end
-
-bn_size_bin(a::BN) = Int(ccall((:bn_size_bin, LIB), Cint, (Ref{BN},), a))
+function bn_sub!(c::BN, a::BN, b::BN)
+    ccall((:bn_sub, LIB), Cvoid, (Ref{BN}, Ref{BN}, Ref{BN}), c, a, b)
+    return c
+end
 
 function bn_write_bin!(bin::Vector{UInt8}, a::BN)
     ccall((:bn_write_bin, LIB), Cvoid, (Ptr{UInt8}, Cint, Ref{BN}), bin, length(bin), a)
