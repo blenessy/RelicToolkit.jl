@@ -12,10 +12,11 @@ function __init__()
     #@assert FP3_ST_SIZE == sizeof(FP3)
     @assert G1_ST_SIZE == sizeof(EP)
     @assert G2_ST_SIZE == sizeof(EP2)
-    iszero(ccall((:core_init, LIB), Cint, ())) || error("core_init failed")
-    iszero(ccall((:ep_param_set_any_pairf, LIB), Cint, ())) || error("ep_param_set_any_pairf failed")
-
-    @info "$(basename(LIB)) loaded successfully!"
+    Threads.@threads for i = 1:Threads.nthreads()
+        iszero(ccall((:core_init, LIB), Cint, ())) || error("core_init failed")
+        iszero(ccall((:ep_param_set_any_pairf, LIB), Cint, ())) || error("ep_param_set_any_pairf failed")
+        @info "$(basename(LIB)) initialised successfully (on Thread $(Threads.threadid()))!"
+    end
 end
 
 # the data is always last so this should be safe for both BN and BigInt
